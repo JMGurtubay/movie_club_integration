@@ -2,6 +2,9 @@
 venv/
 .env/
 
+backend/venv/
+
+
 # Archivos de configuración y datos sensibles
 *.env
 shared/config.py  # Si `config.py` contiene datos sensibles y solo lo usas localmente
@@ -26,4 +29,4 @@ Thumbs.db
 .coverage
 
 cert.pem 
-key.pem
+key.pembackend/app/venv/

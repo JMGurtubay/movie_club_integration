@@ -2,10 +2,9 @@ from datetime import datetime
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 from typing import List, Optional, Dict, Union
 from app.models.movie import MovieDB
-
+from app.models.comment import CommentDB
 
 class MovieRequest(BaseModel):
-
     title: str
     overview: str
     year: int
@@ -23,18 +22,15 @@ class MovieRequest(BaseModel):
     model_config = ConfigDict(
         json_schema_extra={
             "example": {
-            "title": "Inception",
-            "overview": "Es momento de entrar a los sueños para implentar una idea, este es el caso de ...",
-            "year": 2010,
-            "rating": 8.8,
-            "category": "Sci-Fi",
-            "duration": 148,
+                "title": "Inception",
+                "overview": "Es momento de entrar a los sueños para implentar una idea, este es el caso de ...",
+                "year": 2010,
+                "rating": 8.8,
+                "category": "Sci-Fi",
+                "duration": 148,
             }
         }
-        
     )
-
-
 
 class MovieResponse(BaseModel):
     code: int

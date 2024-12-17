@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
-from app.routers import movie, reservation, theater
+from app.routers import movie, reservation, theater, comment, like
 from app.routers.cognito import auth, mfa, password_recovery
 from app.shared.exceptions import BusinessLogicError
 
@@ -18,6 +18,8 @@ app.include_router(password_recovery.router, prefix="/password_recovery", tags=[
 app.include_router(reservation.router, prefix="/reservation", tags=["Reservation"])
 app.include_router(movie.router, prefix="/movie", tags=["Movie"])
 app.include_router(theater.router, prefix="/theater", tags=["Theater"])
+app.include_router(comment.router, prefix="/comment", tags=["Comment"])
+app.include_router(like.router, prefix="/like", tags=["Like"])
 
 @app.get("/", tags=["Root"])
 def read_root():

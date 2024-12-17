@@ -1,3 +1,5 @@
+
+
 from pydantic_settings import BaseSettings
 import boto3
 from dotenv import load_dotenv
@@ -11,6 +13,7 @@ load_dotenv()
 USER_POOL_ID = os.getenv('USER_POOL_ID')
 CLIENT_ID = os.getenv('CLIENT_ID')
 REGION_NAME = os.getenv('REGION_NAME')
+CLIENT_SECRET = os.getenv('CLIENT_SECRET')
 
 # Cliente de Cognito|
 client = boto3.client('cognito-idp', region_name=REGION_NAME)

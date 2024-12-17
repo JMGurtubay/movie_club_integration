@@ -1,6 +1,5 @@
 # schemas/reservation.py
 from pydantic import BaseModel, ConfigDict, Field, field_validator, validator
-from bson import ObjectId
 from collections import OrderedDict
 from typing import List, Optional, Dict, Union
 from datetime import datetime

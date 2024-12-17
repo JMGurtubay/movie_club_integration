@@ -7,6 +7,9 @@ from bson import ObjectId
 from fastapi import Depends
 from fastapi.security import OAuth2PasswordBearer
 from typing import Annotated, Dict
+import base64
+import hmac
+import hashlib
 
 
 reservations_collection=db["reservations"]
@@ -18,6 +21,12 @@ SECRET_KEY = "super53Cr37Pa$$w0rd"
 ALGORITHM = "HS256"
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth")
 
+
+def generate_secret_hash(username: str, client_id: str, client_secret: str) -> str:
+    """Genera el Secret Hash requerido por AWS Cognito."""
+    message = username + client_id
+    hmac_obj = hmac.new(client_secret.encode('utf-8'), message.encode('utf-8'), hashlib.sha256)
+    return base64.b64encode(hmac_obj.digest()).decode('utf-8')
 
 def encode_token(payload: dict) -> str:
     """

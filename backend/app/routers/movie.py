@@ -1,8 +1,17 @@
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import JSONResponse
-from app.services.movie import get_all_movies_service, get_movie_by_id_service, create_movie_service, update_movie_service, delete_movie_service
+from typing import List
+from app.services.movie import (
+    get_all_movies_service, 
+    get_movie_by_id_service, 
+    create_movie_service, 
+    update_movie_service, 
+    delete_movie_service,
+    get_movie_comments
+)
 from app.schemas.movie import MovieRequest, MovieResponse
 from app.models.movie import MovieDB
+from app.models.comment import CommentDB
 from app.shared.utils import validate_object_id
 
 router = APIRouter()
@@ -187,6 +196,43 @@ def delete_movie(movie_id: str):
                 "description": str(e)
             }
         )
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail={
+                "message": "Error inesperado en el servidor.",
+                "description": str(e)
+            }
+        )
+
+@router.get("/{movie_id}/comments", response_model=List[CommentDB])
+def get_movie_comments_route(movie_id: str):
+    """
+    Obtiene todos los comentarios de una película específica.
+
+    Parámetros:
+        - movie_id (str): ID de la película.
+
+    Respuesta:
+        - Lista de comentarios asociados a la película.
+    """
+    try:
+        validate_object_id(movie_id)
+        # Verificar que la película existe
+        movie = get_movie_by_id_service(movie_id)
+        if not movie:
+            raise HTTPException(
+                status_code=404,
+                detail={
+                    "message": "Película no encontrada.",
+                    "description": "No se encontró una película con el ID proporcionado."
+                }
+            )
+        
+        comments = get_movie_comments(movie_id)
+        return comments
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(
             status_code=500,

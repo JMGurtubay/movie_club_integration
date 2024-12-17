@@ -1,8 +1,7 @@
 from fastapi import HTTPException
 from datetime import datetime, date, time
-
-from jose import jwt
 from app.database.connection import db
+from app.shared.config import JWKS_URL
 from bson import ObjectId
 from fastapi import Depends
 from fastapi.security import OAuth2PasswordBearer
@@ -10,6 +9,8 @@ from typing import Annotated, Dict
 import base64
 import hmac
 import hashlib
+from jose import jwt, JWTError
+import requests
 
 
 reservations_collection=db["reservations"]
@@ -272,3 +273,32 @@ def validate_user_unique(username: str, email: str):
                 "email": email
             }
         })
+
+
+
+
+
+# URL de los JWKS (JSON Web Key Set) para validar el token
+
+
+def get_cognito_public_keys():
+    response = requests.get(JWKS_URL)
+    return response.json()["keys"]
+
+def verify_and_decode_token(token: str) -> dict:
+    """
+    Verifica y decodifica un JWT de AWS Cognito.
+    """
+    try:
+        # Obtener las claves públicas
+        jwks = get_cognito_public_keys()
+        # Decodificar el token
+        decoded_token = jwt.decode(
+            token,
+            key=jwks,
+            algorithms=["RS256"],
+            options={"verify_aud": False},  # Desactiva la validación de "aud" si no se usa
+        )
+        return decoded_token
+    except JWTError as e:
+        raise ValueError(f"Token inválido: {str(e)}")

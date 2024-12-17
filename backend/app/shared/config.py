@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 import os
 
 
+
 #Cargar las variables de entorno desde .env
 load_dotenv()
 
@@ -17,6 +18,7 @@ CLIENT_SECRET = os.getenv('CLIENT_SECRET')
 
 # Cliente de Cognito|
 client = boto3.client('cognito-idp', region_name=REGION_NAME)
+JWKS_URL = f"https://cognito-idp.{REGION_NAME}.amazonaws.com/{USER_POOL_ID}/.well-known/jwks.json"
 
 
 class Settings(BaseSettings):

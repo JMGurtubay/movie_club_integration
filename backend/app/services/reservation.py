@@ -48,12 +48,12 @@ def get_reservation_by_id_service(reservation_id: str) -> ReservationDB:
     except PyMongoError as e:
         raise RuntimeError(f"Database error: {str(e)}")
 
-def create_reservation_service(reservation_data: ReservationRequest, user_id:StopAsyncIteration) -> ReservationDB:
+def create_reservation_service(reservation_data: ReservationRequest, user_id: str) -> ReservationDB:
     try:
         
         reservation_data.validate_fields()
         reservation_dict = reservation_data.model_dump(exclude={"id"})
-        reservation_dict["user_id"] = ObjectId(user_id)
+        reservation_dict["user_id"] = user_id
         reservation_dict["theater_id"] = ObjectId(reservation_dict["theater_id"])
         reservation_dict["movie_id"] = ObjectId(reservation_dict["movie_id"])
         reservation_dict["start_time"]= datetime.combine(reservation_dict["reservation_date"].date(), reservation_dict["start_time"].time())
@@ -66,7 +66,7 @@ def create_reservation_service(reservation_data: ReservationRequest, user_id:Sto
 
         return ReservationDB(
             id=str(created_reservation["_id"]),
-            user_id=str(created_reservation["user_id"]),
+            user_id=created_reservation["user_id"],
             theater_id=str(created_reservation["theater_id"]),
             movie_id=str(created_reservation["movie_id"]),
             is_private=created_reservation["is_private"],

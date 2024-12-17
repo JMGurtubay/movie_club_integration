@@ -1,9 +1,10 @@
 from typing import Annotated
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Request, Depends, HTTPException
 from app.schemas.reservation import ReservationRequest, ReservationResponse
 from app.services.reservation import create_reservation_service,get_all_reservations_service,get_reservation_by_id_service,delete_reservation_service,update_reservation_service
 from app.shared.utils import decode_token, validate_object_id, validate_reservation_time, validate_theater_availability,validate_movie_duration
 from app.shared.exceptions import BusinessLogicError
+from app.shared.cognito_utils import get_user_from_token
 
 router = APIRouter()
 
@@ -84,8 +85,10 @@ def get_reservation(reservation_id: str):
         )
 
 
-@router.post("/", response_model=ReservationResponse)
-def create_reservation(reservation: ReservationRequest):
+@router.post("/{accessToken}", response_model=ReservationResponse)
+def create_reservation(
+    reservation: ReservationRequest, accessToken:str):
+# def create_reservation(request: Request,reservation: ReservationRequest):  access_token: str = Query(..., description="Access Token de Cognito")
     """
     Crea una nueva reservación en la base de datos.
 
@@ -99,6 +102,12 @@ def create_reservation(reservation: ReservationRequest):
         - data: Objeto con los datos de la reservación creada.
     """
     try:
+        # Obtener el usuario autenticado del middleware
+        user_id = get_user_from_token(accessToken)
+
+        if not user_id:
+            raise HTTPException(status_code=401, detail="No se pudo extraer el ID del usuario autenticado.")
+        
         validate_reservation_time(reservation.start_time, reservation.end_time)
         validate_theater_availability(
             reservation.theater_id,
@@ -111,7 +120,7 @@ def create_reservation(reservation: ReservationRequest):
             reservation.start_time,
             reservation.end_time
         )
-        created_reservation = create_reservation_service(reservation, str(user["_id"]))
+        created_reservation = create_reservation_service(reservation, user_id)
 
         return ReservationResponse(
             code=200,
